@@ -90,42 +90,64 @@ export class PaymentConditions {
     const overlapEndPoint = Math.min(onPeakEnd.getTime(), sessionEnd.getTime());
 
     // ### S1
-    const isSessionStartBeforeOnPeak =
-      sessionStart.getTime() < onPeakStart.getTime();
+    let isSessionStartBeforeOnPeak = false;
     // ### S2
-    const isSessionStartAtOnPeakStart =
-      sessionStart.getTime() === onPeakStart.getTime();
-    // ### S3
-    const isSessionStartAfterOnPeakStart =
-      sessionStart.getTime() > onPeakStart.getTime();
-    // ### S4
-    const isSessionStartBeforeOnPeakEnd =
-      sessionStart.getTime() < onPeakEnd.getTime();
+    let isSessionStartAtOnPeakStart = false;
+    // ### S3 && S4
+    let isSessionStartInBetweenOnPeakPeriod = false;
     // ### S5
-    const isSessionStartAtOnPeakEnd =
-      sessionStart.getTime() === onPeakEnd.getTime();
-    // ### S6
-    const isSessionStartAfterOnPeakEnd =
-      sessionStart.getTime() > onPeakEnd.getTime();
+    let isSessionStartAtOnPeakEnd = false;
+    // ### S5
+    let isSessionStartAfterOnPeakEnd = false;
+
+    switch (true) {
+      case sessionStart.getTime() < onPeakStart.getTime():
+        isSessionStartBeforeOnPeak = true;
+        break;
+      case sessionStart.getTime() === onPeakStart.getTime():
+        isSessionStartAtOnPeakStart = true;
+        break;
+      case sessionStart.getTime() > onPeakStart.getTime() &&
+        sessionStart.getTime() < onPeakEnd.getTime():
+        isSessionStartInBetweenOnPeakPeriod = true;
+        break;
+      case sessionStart.getTime() === onPeakEnd.getTime():
+        isSessionStartAtOnPeakEnd = true;
+        break;
+      case sessionStart.getTime() > onPeakEnd.getTime():
+        isSessionStartAfterOnPeakEnd = true;
+        break;
+    }
 
     // ### E1
-    const isSessionEndBeforeOnPeakStart =
-      sessionEnd.getTime() < onPeakStart.getTime();
+    let isSessionEndBeforeOnPeakStart = false;
     // ### E2
-    const isSessionEndAtOnPeakStart =
-      sessionEnd.getTime() === onPeakStart.getTime();
-    // ### E3
-    const isSessionEndAfterOnPeakStart =
-      sessionEnd.getTime() > onPeakStart.getTime();
-    // ### E4
-    const isSessionEndBeforeOnPeakEnd =
-      sessionEnd.getTime() < onPeakEnd.getTime();
+    let isSessionEndAtOnPeakStart = false;
+    // ### E3 && E4
+    let isSessionEndInBetweenOnPeakPeriod = false;
     // ### E5
-    const isSessionEndAtOnPeakEnd =
-      sessionEnd.getTime() === onPeakEnd.getTime();
+    let isSessionEndAtOnPeakEnd = false;
     // ### E6
-    const isSessionEndAfterOnPeakEnd =
-      sessionEnd.getTime() > onPeakEnd.getTime();
+    let isSessionEndAfterOnPeakEnd = false;
+
+    switch (true) {
+      case sessionEnd.getTime() < onPeakStart.getTime():
+        isSessionEndBeforeOnPeakStart = true;
+        break;
+      case sessionEnd.getTime() === onPeakStart.getTime():
+        isSessionEndAtOnPeakStart = true;
+        break;
+      case sessionEnd.getTime() > onPeakStart.getTime() &&
+        sessionEnd.getTime() < onPeakEnd.getTime():
+        isSessionEndInBetweenOnPeakPeriod = true;
+        break;
+      case sessionEnd.getTime() === onPeakEnd.getTime():
+        isSessionEndAtOnPeakEnd = true;
+        break;
+      case sessionEnd.getTime() > onPeakEnd.getTime():
+        isSessionEndAfterOnPeakEnd = true;
+        break;
+    }
 
     // TC#1
     if (isSessionStartBeforeOnPeak && isSessionEndBeforeOnPeakStart) {
@@ -161,17 +183,11 @@ export class PaymentConditions {
     }
 
     // TC#3
-    if (isSessionStartBeforeOnPeak && isSessionEndAfterOnPeakStart) {
+    if (isSessionStartBeforeOnPeak && isSessionEndInBetweenOnPeakPeriod) {
       const beforeOnPeakPeriod = {
         isValid: false,
         actualDuration: getTimeDiffInFormatHHMM(sessionStart, onPeakStart),
         totalHours: getTimeDiffInHour(sessionStart, onPeakStart),
-      };
-
-      const atOnPeakStartEdge = {
-        isValid: false,
-        actualDuration: getTimeDiffInFormatHHMM(onPeakStart, onPeakStart),
-        totalHours: getTimeDiffInHour(onPeakStart, onPeakStart),
       };
 
       const afterOnPeakStartPeriod = {
@@ -184,14 +200,13 @@ export class PaymentConditions {
       };
 
       totalTimePeriodRanges.push(beforeOnPeakPeriod);
-      totalTimePeriodRanges.push(atOnPeakStartEdge);
       totalTimePeriodRanges.push(afterOnPeakStartPeriod);
 
       return totalTimePeriodRanges;
     }
 
     // TC#4
-    if (isSessionStartBeforeOnPeak && isSessionEndBeforeOnPeakEnd) {
+    if (isSessionStartBeforeOnPeak && isSessionEndInBetweenOnPeakPeriod) {
       const beforeOnPeakPeriod = {
         isValid: false,
         actualDuration: getTimeDiffInFormatHHMM(sessionStart, onPeakStart),
@@ -228,12 +243,6 @@ export class PaymentConditions {
         totalHours: getTimeDiffInHour(sessionStart, onPeakStart),
       };
 
-      const atOnPeakStartEdge = {
-        isValid: false,
-        actualDuration: getTimeDiffInFormatHHMM(onPeakStart, onPeakStart),
-        totalHours: getTimeDiffInHour(onPeakStart, onPeakStart),
-      };
-
       const afterOnPeakStartPeriod = {
         isValid: true,
         actualDuration: getTimeDiffInFormatHHMM(
@@ -250,7 +259,6 @@ export class PaymentConditions {
       };
 
       totalTimePeriodRanges.push(beforeOnPeakPeriod);
-      totalTimePeriodRanges.push(atOnPeakStartEdge);
       totalTimePeriodRanges.push(afterOnPeakStartPeriod);
       totalTimePeriodRanges.push(atOnPeakEndEdge);
 
@@ -265,12 +273,6 @@ export class PaymentConditions {
         totalHours: getTimeDiffInHour(sessionStart, onPeakStart),
       };
 
-      const atOnPeakStartEdge = {
-        isValid: false,
-        actualDuration: getTimeDiffInFormatHHMM(onPeakStart, onPeakStart),
-        totalHours: getTimeDiffInHour(onPeakStart, onPeakStart),
-      };
-
       const afterOnPeakStartPeriod = {
         isValid: true,
         actualDuration: getTimeDiffInFormatHHMM(
@@ -280,12 +282,6 @@ export class PaymentConditions {
         totalHours: getTimeDiffInHour(new Date(overlapStartPoint), onPeakEnd),
       };
 
-      const atOnPeakEndEdge = {
-        isValid: false,
-        actualDuration: getTimeDiffInFormatHHMM(onPeakEnd, onPeakEnd),
-        totalHours: getTimeDiffInHour(onPeakEnd, onPeakEnd),
-      };
-
       const afterOnPeakEndPeriod = {
         isValid: false,
         actualDuration: getTimeDiffInFormatHHMM(onPeakEnd, sessionEnd),
@@ -293,10 +289,58 @@ export class PaymentConditions {
       };
 
       totalTimePeriodRanges.push(beforeOnPeakPeriod);
+      totalTimePeriodRanges.push(afterOnPeakStartPeriod);
+      totalTimePeriodRanges.push(afterOnPeakEndPeriod);
+
+      return totalTimePeriodRanges;
+    }
+
+    // TC#9 && TC#10
+    if (isSessionStartAtOnPeakStart && isSessionEndInBetweenOnPeakPeriod) {
+      const atOnPeakStartEdge = {
+        isValid: false,
+        actualDuration: getTimeDiffInFormatHHMM(onPeakStart, onPeakStart),
+        totalHours: getTimeDiffInHour(onPeakStart, onPeakStart),
+      };
+      const afterOnPeakStartPeriod = {
+        isValid: true,
+        actualDuration: getTimeDiffInFormatHHMM(
+          new Date(overlapStartPoint),
+          sessionEnd
+        ),
+        totalHours: getTimeDiffInHour(new Date(overlapStartPoint), sessionEnd),
+      };
+
+      totalTimePeriodRanges.push(atOnPeakStartEdge);
+      totalTimePeriodRanges.push(afterOnPeakStartPeriod);
+
+      return totalTimePeriodRanges;
+    }
+
+    // TC#11
+    if (isSessionStartAtOnPeakStart && isSessionEndAtOnPeakEnd) {
+      const atOnPeakStartEdge = {
+        isValid: false,
+        actualDuration: getTimeDiffInFormatHHMM(onPeakStart, onPeakStart),
+        totalHours: getTimeDiffInHour(onPeakStart, onPeakStart),
+      };
+      const afterOnPeakStartPeriod = {
+        isValid: true,
+        actualDuration: getTimeDiffInFormatHHMM(
+          new Date(overlapStartPoint),
+          sessionEnd
+        ),
+        totalHours: getTimeDiffInHour(new Date(overlapStartPoint), sessionEnd),
+      };
+      const atOnPeakEndEdge = {
+        isValid: false,
+        actualDuration: getTimeDiffInFormatHHMM(onPeakEnd, onPeakEnd),
+        totalHours: getTimeDiffInHour(onPeakEnd, onPeakEnd),
+      };
+
       totalTimePeriodRanges.push(atOnPeakStartEdge);
       totalTimePeriodRanges.push(afterOnPeakStartPeriod);
       totalTimePeriodRanges.push(atOnPeakEndEdge);
-      totalTimePeriodRanges.push(afterOnPeakEndPeriod);
 
       return totalTimePeriodRanges;
     }
@@ -310,46 +354,6 @@ export class PaymentConditions {
     ];
 
     return INVALID_CASE;
-
-    // const haveValidSessionInBetween = overlapStartPoint < overlapEndPoint;
-    // if (haveValidSessionInBetween) {
-    //   const validPeriod = {
-    //     isValid: true,
-    //     actualDuration: getTimeDiffInFormatHHMM(
-    //       new Date(overlapStartPoint),
-    //       new Date(overlapEndPoint)
-    //     ),
-    //     totalHours: getTimeDiffInHour(
-    //       new Date(overlapStartPoint),
-    //       new Date(overlapEndPoint)
-    //     ),
-    //   };
-
-    //   totalTimePeriodRanges.push(validPeriod);
-    // }
-
-    // const isSessionStartAndEndAtOnPeakEnd =
-    //   onPeakEnd.getTime() === sessionEnd.getTime();
-    // if (isSessionStartAndEndAtOnPeakEnd) {
-    //   const edgeOnPeakEnd = {
-    //     isValid: false,
-    //     actualDuration: getTimeDiffInFormatHHMM(sessionEnd, onPeakEnd),
-    //     totalHours: sessionEnd.getHours() - onPeakEnd.getHours(),
-    //   };
-
-    //   totalTimePeriodRanges.push(edgeOnPeakEnd);
-    // }
-
-    // const isSessionEndAfterOnPeak = sessionEnd.getTime() > onPeakEnd.getTime();
-    // if (isSessionEndAfterOnPeak) {
-    //   const afterOnPeakPeriod = {
-    //     isValid: false,
-    //     actualDuration: getTimeDiffInFormatHHMM(onPeakEnd, sessionEnd),
-    //     totalHours: sessionEnd.getHours() - onPeakEnd.getHours(),
-    //   };
-
-    //   totalTimePeriodRanges.push(afterOnPeakPeriod);
-    // }
   }
 }
 

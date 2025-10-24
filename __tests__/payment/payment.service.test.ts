@@ -127,150 +127,237 @@ describe("Payment Service - Check Time Period", () => {
     const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
 
     // Assert
+    expect(expected).toEqual(actual);
+  });
+
+  it("TC4: It should return true If Session started at 06:00 and ended at 20:00", () => {
+    // Arrange
+    const expected = [
+      {
+        isValid: false,
+        actualDuration: "3:00",
+        totalHours: 3,
+      },
+      {
+        isValid: true,
+        actualDuration: "11:00",
+        totalHours: 11,
+      },
+    ];
+    const onPeakPeriod = {
+      start: "09:00:00",
+      end: "22:00:00",
+    };
+    const sessionPeriod = {
+      start: new Date("2025-10-21T06:00:00+07:00"),
+      end: new Date("2025-10-21T20:00:00+07:00"),
+    };
+    const paymentService = new PaymentConditions();
+
+    // Act
+    const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
+
+    // Assert
+    expect(expected).toEqual(actual);
+  });
+
+  it("TC5: It should return true If Session started at 06:30 and ended at 22:00", () => {
+    // Arrange
+    const expected = [
+      {
+        isValid: false,
+        actualDuration: "2:30",
+        totalHours: 2,
+      },
+      {
+        isValid: true,
+        actualDuration: "13:00",
+        totalHours: 13,
+      },
+      {
+        isValid: false,
+        actualDuration: "0:00",
+        totalHours: 0,
+      },
+    ];
+    const onPeakPeriod = {
+      start: "09:00:00",
+      end: "22:00:00",
+    };
+    const sessionPeriod = {
+      start: new Date("2025-10-21T06:30:00+07:00"),
+      end: new Date("2025-10-21T22:00:00+07:00"),
+    };
+    const paymentService = new PaymentConditions();
+
+    // Act
+    const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
+
+    // Assert
+    expect(expected).toEqual(actual);
+  });
+
+  it("TC6: It should return true If Session started at 07:45 and ended at 23:30", () => {
+    // Arrange
+    const expected = [
+      {
+        isValid: false,
+        actualDuration: "1:15",
+        totalHours: 1,
+      },
+      {
+        isValid: true,
+        actualDuration: "13:00",
+        totalHours: 13,
+      },
+      {
+        isValid: false,
+        actualDuration: "1:30",
+        totalHours: 1,
+      },
+    ];
+    const onPeakPeriod = {
+      start: "09:00:00",
+      end: "22:00:00",
+    };
+    const sessionPeriod = {
+      start: new Date("2025-10-21T07:45:00+07:00"),
+      end: new Date("2025-10-21T23:30:00+07:00"),
+    };
+    const paymentService = new PaymentConditions();
+
+    // Act
+    const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
+
+    // Assert
+    expect(expected).toEqual(actual);
+  });
+
+  it("TC8: It should return false If Session started at 09:00 and ended at 09:00", () => {
+    // Arrange
+    const expected = [
+      {
+        isValid: false,
+        actualDuration: "0:00",
+        totalHours: 0,
+      },
+    ];
+    const onPeakPeriod = {
+      start: "09:00:00",
+      end: "22:00:00",
+    };
+    const sessionPeriod = {
+      start: new Date("2025-10-21T09:00:00+07:00"),
+      end: new Date("2025-10-21T09:00:00+07:00"),
+    };
+    const paymentService = new PaymentConditions();
+
+    // Act
+    const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
+
+    // Assert
+    expect(expected).toEqual(actual);
+  });
+
+  it("TC9: It should return false If Session started at 09:00 and ended at 12:00", () => {
+    // Arrange
+    const expected = [
+      {
+        isValid: false,
+        actualDuration: "0:00",
+        totalHours: 0,
+      },
+      {
+        isValid: true,
+        actualDuration: "3:00",
+        totalHours: 3,
+      },
+    ];
+    const onPeakPeriod = {
+      start: "09:00:00",
+      end: "22:00:00",
+    };
+    const sessionPeriod = {
+      start: new Date("2025-10-21T09:00:00+07:00"),
+      end: new Date("2025-10-21T12:00:00+07:00"),
+    };
+    const paymentService = new PaymentConditions();
+
+    // Act
+    const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
+
+    // Assert
     console.log("expected", expected);
     console.log("actual", actual);
     expect(expected).toEqual(actual);
   });
 
-  // it("TC4: It should return true If Session started at 06:00 and ended at 20:00", () => {
-  //   // Arrange
-  //   const expected = true;
-  //   const onPeakPeriod = {
-  //     start: "09:00:00",
-  //     end: "22:00:00",
-  //   };
-  //   const sessionPeriod = {
-  //     start: new Date("2025-10-21T06:00:00+07:00"),
-  //     end: new Date("2025-10-21T20:00:00+07:00"),
-  //   };
-  //   const paymentService = new PaymentCalculator();
+  it("TC10: It should return false If Session started at 09:00 and ended at 13:00", () => {
+    // Arrange
+    const expected = [
+      {
+        isValid: false,
+        actualDuration: "0:00",
+        totalHours: 0,
+      },
+      {
+        isValid: true,
+        actualDuration: "4:00",
+        totalHours: 4,
+      },
+    ];
+    const onPeakPeriod = {
+      start: "09:00:00",
+      end: "22:00:00",
+    };
+    const sessionPeriod = {
+      start: new Date("2025-10-21T09:00:00+07:00"),
+      end: new Date("2025-10-21T13:00:00+07:00"),
+    };
+    const paymentService = new PaymentConditions();
 
-  //   // Act
-  //   const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
+    // Act
+    const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
 
-  //   // Assert
-  //   expect(expected).toEqual(actual);
-  // });
+    // Assert
+    expect(expected).toEqual(actual);
+  });
 
-  // it("TC5: It should return true If Session started at 06:30 and ended at 22:00", () => {
-  //   // Arrange
-  //   const expected = true;
-  //   const onPeakPeriod = {
-  //     start: "09:00:00",
-  //     end: "22:00:00",
-  //   };
-  //   const sessionPeriod = {
-  //     start: new Date("2025-10-21T06:30:00+07:00"),
-  //     end: new Date("2025-10-21T22:00:00+07:00"),
-  //   };
-  //   const paymentService = new PaymentCalculator();
+  it("TC11: It should return false If Session started at 09:00 and ended at 22:00", () => {
+    // Arrange
+    const expected = [
+      {
+        isValid: false,
+        actualDuration: "0:00",
+        totalHours: 0,
+      },
+      {
+        isValid: true,
+        actualDuration: "13:00",
+        totalHours: 13,
+      },
+      {
+        isValid: false,
+        actualDuration: "0:00",
+        totalHours: 0,
+      },
+    ];
+    const onPeakPeriod = {
+      start: "09:00:00",
+      end: "22:00:00",
+    };
+    const sessionPeriod = {
+      start: new Date("2025-10-21T09:00:00+07:00"),
+      end: new Date("2025-10-21T22:00:00+07:00"),
+    };
+    const paymentService = new PaymentConditions();
 
-  //   // Act
-  //   const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
+    // Act
+    const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
 
-  //   // Assert
-  //   expect(expected).toEqual(actual);
-  // });
-
-  // it("TC6: It should return true If Session started at 07:45 and ended at 23:30", () => {
-  //   // Arrange
-  //   const expected = true;
-  //   const onPeakPeriod = {
-  //     start: "09:00:00",
-  //     end: "22:00:00",
-  //   };
-  //   const sessionPeriod = {
-  //     start: new Date("2025-10-21T07:45:00+07:00"),
-  //     end: new Date("2025-10-21T23:30:00+07:00"),
-  //   };
-  //   const paymentService = new PaymentCalculator();
-
-  //   // Act
-  //   const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
-
-  //   // Assert
-  //   expect(expected).toEqual(actual);
-  // });
-
-  // it("TC8: It should return false If Session started at 09:00 and ended at 09:00", () => {
-  //   // Arrange
-  //   const expected = false;
-  //   const onPeakPeriod = {
-  //     start: "09:00:00",
-  //     end: "22:00:00",
-  //   };
-  //   const sessionPeriod = {
-  //     start: new Date("2025-10-21T09:00:00+07:00"),
-  //     end: new Date("2025-10-21T09:00:00+07:00"),
-  //   };
-  //   const paymentService = new PaymentCalculator();
-
-  //   // Act
-  //   const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
-
-  //   // Assert
-  //   expect(expected).toEqual(actual);
-  // });
-
-  // it("TC9: It should return false If Session started at 09:00 and ended at 12:00", () => {
-  //   // Arrange
-  //   const expected = true;
-  //   const onPeakPeriod = {
-  //     start: "09:00:00",
-  //     end: "22:00:00",
-  //   };
-  //   const sessionPeriod = {
-  //     start: new Date("2025-10-21T09:00:00+07:00"),
-  //     end: new Date("2025-10-21T12:00:00+07:00"),
-  //   };
-  //   const paymentService = new PaymentCalculator();
-
-  //   // Act
-  //   const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
-
-  //   // Assert
-  //   expect(expected).toEqual(actual);
-  // });
-
-  // it("TC10: It should return false If Session started at 09:00 and ended at 13:00", () => {
-  //   // Arrange
-  //   const expected = true;
-  //   const onPeakPeriod = {
-  //     start: "09:00:00",
-  //     end: "22:00:00",
-  //   };
-  //   const sessionPeriod = {
-  //     start: new Date("2025-10-21T09:00:00+07:00"),
-  //     end: new Date("2025-10-21T13:00:00+07:00"),
-  //   };
-  //   const paymentService = new PaymentCalculator();
-
-  //   // Act
-  //   const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
-
-  //   // Assert
-  //   expect(expected).toEqual(actual);
-  // });
-
-  // it("TC11: It should return false If Session started at 09:00 and ended at 22:00", () => {
-  //   // Arrange
-  //   const expected = true;
-  //   const onPeakPeriod = {
-  //     start: "09:00:00",
-  //     end: "22:00:00",
-  //   };
-  //   const sessionPeriod = {
-  //     start: new Date("2025-10-21T09:00:00+07:00"),
-  //     end: new Date("2025-10-21T22:00:00+07:00"),
-  //   };
-  //   const paymentService = new PaymentCalculator();
-
-  //   // Act
-  //   const actual = paymentService.isOnPeak(onPeakPeriod, sessionPeriod);
-
-  //   // Assert
-  //   expect(expected).toEqual(actual);
-  // });
+    // Assert
+    expect(expected).toEqual(actual);
+  });
 });
 
 describe("Payment Service - AP amount per Session", () => {
